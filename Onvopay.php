@@ -20,7 +20,7 @@ declare(strict_types=1);
  * ------------
  * 1. getHtml() creates an ONVO Customer (optional, best effort) and a
  *    Payment Intent (POST /v1/payment-intents) for the invoice total, then
- *    returns a page containing a "Pagar" button that opens a modal.
+ *    returns a page containing a "Pay" button that opens a modal.
  * 2. Inside the modal, ONVO's Web SDK (`https://sdk.onvopay.com/sdk.js`) is
  *    loaded and `onvo.pay({...}).render('#onvo-container')` draws ONVO's own
  *    card form using the Publishable Key. The SDK collects the card,
@@ -134,7 +134,7 @@ class Payment_Adapter_Onvopay implements FOSSBilling\InjectionAwareInterface
             // (ONVO's Web SDK renders a card form into a <div>, it never
             // navigates the browser away), so it is safe to embed.
             'can_load_in_iframe' => true,
-            'description' => 'Acepta pagos con tarjeta (Visa/Mastercard) sin salir de tu sitio, usando el Web SDK de ONVO en una ventana modal. Obtené tus llaves en el Dashboard de ONVO (https://onvopay.com/dashboard): la Secret Key se usa en el servidor y la Publishable Key en el navegador. Para producción, además registrá en ONVO > Desarrolladores > Webhooks la "Notify URL" que FOSSBilling muestra para esta pasarela, suscrita a "payment-intent.succeeded" y "payment-intent.failed", y pegá el Webhook Secret generado en el campo correspondiente.',
+            'description' => 'Accept card payments (Visa/Mastercard) without leaving your site, using ONVO\'s Web SDK in a modal window. Get your keys from the ONVO Dashboard (https://onvopay.com/dashboard): the Secret Key is used on the server and the Publishable Key in the browser. For production, also register in ONVO > Developers > Webhooks the "Notify URL" that FOSSBilling shows for this gateway, subscribed to "payment-intent.succeeded" and "payment-intent.failed", and paste the generated Webhook Secret into the corresponding field.',
             'logo' => [
                 'logo' => 'onvopay.png',
                 'height' => '40px',
@@ -233,18 +233,18 @@ class Payment_Adapter_Onvopay implements FOSSBilling\InjectionAwareInterface
 
         return <<<HTML
             <div class="onvo-pay-wrap">
-                <button type="button" id="onvo-pay-open-btn" class="btn btn-primary">Pagar con tarjeta (ONVO)</button>
+                <button type="button" id="onvo-pay-open-btn" class="btn btn-primary">Pay with card (ONVO)</button>
             </div>
 
             <div id="onvo-pay-backdrop" class="onvo-pay-backdrop" style="display:none;">
-                <div class="onvo-pay-modal" role="dialog" aria-modal="true" aria-label="Pago seguro con ONVO">
+                <div class="onvo-pay-modal" role="dialog" aria-modal="true" aria-label="Secure payment with ONVO">
                     <div class="onvo-pay-modal-header">
-                        <span>Pago seguro con ONVO</span>
-                        <button type="button" id="onvo-pay-close-btn" class="onvo-pay-close" aria-label="Cerrar">&times;</button>
+                        <span>Secure payment with ONVO</span>
+                        <button type="button" id="onvo-pay-close-btn" class="onvo-pay-close" aria-label="Close">&times;</button>
                     </div>
                     <div class="onvo-pay-modal-body">
                         <div id="onvo-pay-error" class="onvo-pay-error" style="display:none;"></div>
-                        <div id="onvo-pay-processing" class="onvo-pay-processing" style="display:none;">Confirmando tu pago…</div>
+                        <div id="onvo-pay-processing" class="onvo-pay-processing" style="display:none;">Confirming your payment…</div>
                         <div id="onvo-container"></div>
                     </div>
                 </div>
@@ -277,11 +277,11 @@ class Payment_Adapter_Onvopay implements FOSSBilling\InjectionAwareInterface
                 var NOTIFY_URL = {$notifyUrlJs};
 
                 var CARD_ERROR_MESSAGES = {
-                    issuer_declined: 'Tu banco rechazó la tarjeta. Probá con otra tarjeta o contactá a tu banco.',
-                    gateway_declined: 'La tarjeta no pudo ser aceptada. Verificá los datos e intentá de nuevo.',
-                    onvo_declined: 'El pago no pudo procesarse por una regla de seguridad. Probá con otra tarjeta.',
-                    processor_error: 'Ocurrió un error técnico procesando el pago. Intentá de nuevo en unos minutos.',
-                    unknown: 'No se pudo verificar la tarjeta. Revisá los datos e intentá de nuevo.'
+                    issuer_declined: 'Your bank declined the card. Try another card or contact your bank.',
+                    gateway_declined: 'The card could not be accepted. Check the details and try again.',
+                    onvo_declined: 'The payment could not be processed due to a security rule. Try another card.',
+                    processor_error: 'A technical error occurred while processing the payment. Try again in a few minutes.',
+                    unknown: 'The card could not be verified. Check the details and try again.'
                 };
 
                 function showError(message) {
@@ -294,10 +294,10 @@ class Payment_Adapter_Onvopay implements FOSSBilling\InjectionAwareInterface
                         publicKey: PUBLIC_KEY,
                         paymentIntentId: PAYMENT_INTENT_ID,
                         paymentType: 'one_time',
-                        {$customerIdLine}locale: 'es',
+                        {$customerIdLine}locale: 'en',
                         onError: function (data) {
                             processingBox.style.display = 'none';
-                            var message = (data && data.message) || 'No se pudo procesar el pago. Intentá de nuevo.';
+                            var message = (data && data.message) || 'The payment could not be processed. Try again.';
                             try {
                                 var card = data && data.details && data.details.card;
                                 if (card && card.reason && CARD_ERROR_MESSAGES[card.reason]) {

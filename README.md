@@ -14,7 +14,7 @@ Built strictly from ONVO's official documentation:
 
 ## How it works
 
-1. The client opens the invoice and clicks **"Pagar con tarjeta
+1. The client opens the invoice and clicks **"Pay with card
    (ONVO)"** → a modal opens.
 2. `getHtml()` has already created, server-side, a **Customer** (best
    effort) and a **Payment Intent** (`POST /v1/payment-intents`) for the
